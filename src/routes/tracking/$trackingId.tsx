@@ -9,7 +9,7 @@ import {
   TimelineSeparator,
 } from '@mui/lab';
 import { createFileRoute } from '@tanstack/react-router'
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 export const Route = createFileRoute('/tracking/$trackingId')({
   component: RouteComponent,
@@ -50,46 +50,43 @@ interface Details {
 
   }
 }
-interface Error {
+interface ApiError {
   errorCode: number,
   errorMsg: string,
 }
 
+function isApiError(e: unknown): e is ApiError {
+  return typeof e === 'object' && e !== null && 'errorCode' in e && 'errorMsg' in e;
+}
+
+async function fetchTracking(trackingId: string): Promise<{ statuses: Status[], details: Details }> {
+  const res = await fetch(`/api/tracking/${trackingId}`);
+  const body = await res.json();
+
+  if (!res.ok) {
+    throw body as ApiError;
+  }
+
+  const { statuses, details } = body as { statuses: Status[], details: Details };
+  return {
+    statuses: statuses.map((status) => ({ ...status, time: new Date(status.time) })),
+    details,
+  };
+}
+
 function RouteComponent() {
   const { trackingId } = Route.useParams();
-  const [statuses, setStatuses] = useState<Status[]>([]);
-  const [details, setDetails] = useState<Details | null>(null);
-  const [err, setErr] = useState<Error | null>(null);
+  const { data, error } = useQuery({
+    queryKey: ['tracking', trackingId],
+    queryFn: () => fetchTracking(trackingId),
+    retry: false,
+  });
 
-  useEffect(() => {
-    let active = true;
-    setErr(null);
-    setStatuses([]);
-
-    fetch(`/api/tracking/${trackingId}`)
-      .then(async (res) => {
-        const body = await res.json();
-        if (!active) return;
-
-        if (!res.ok) {
-          setErr(body as Error);
-        } else {
-          let { statuses, details } = body as { statuses: Status[], details: Details };
-          setStatuses(
-            statuses.map((status) => (
-              { ...status, time: new Date(status.time) })));
-          setDetails(details);
-        }
-      })
-      .catch((e: unknown) => {
-        if (!active) return;
-        setErr({ errorCode: 0, errorMsg: e instanceof Error ? e.message : 'Network error' });
-      });
-
-    return () => {
-      active = false;
-    };
-  }, [trackingId]);
+  const statuses = data?.statuses ?? [];
+  const details = data?.details ?? null;
+  const err: ApiError | null = error == null ? null
+    : isApiError(error) ? error
+    : { errorCode: 0, errorMsg: error instanceof Error ? error.message : 'Network error' };
 
   return (
     <>
