@@ -26,22 +26,13 @@ const theme = createTheme(
       h4: { fontFamily: '"Space Grotesk", sans-serif', fontWeight: 600 },
       h5: { fontFamily: '"Space Grotesk", sans-serif', fontWeight: 600 },
       h6: { fontFamily: '"Space Grotesk", sans-serif', fontWeight: 600 },
-      subtitle1: { fontFamily: '"Plus Jakarta Sans", sans-serif', fontWeight: 500 },
-      subtitle2: { fontFamily: '"Plus Jakarta Sans", sans-serif', fontWeight: 500 },
+      subtitle1: { fontFamily: '"Inter", sans-serif', fontWeight: 500 },
+      subtitle2: { fontFamily: '"Inter", sans-serif', fontWeight: 500 },
       body1: { fontFamily: '"Inter", sans-serif', fontWeight: 400 },
       body2: { fontFamily: '"Inter", sans-serif', fontWeight: 400 },
-      button: { fontFamily: '"Plus Jakarta Sans", sans-serif', fontWeight: 600, textTransform: 'none' },
-      caption: { fontFamily: '"Sora", sans-serif', fontWeight: 500, letterSpacing: '0.02em' },
-      overline: { fontFamily: '"Sora", sans-serif', fontWeight: 600, letterSpacing: '0.08em' },
-    },
-    components: {
-      MuiCssBaseline: {
-        styleOverrides: `
-          h1 {
-            font-family: "JetBrains Mono", monospace;
-          }
-        `,
-      },
+      button: { fontFamily: '"Inter", sans-serif', fontWeight: 600, textTransform: 'none' },
+      caption: { fontFamily: '"Inter", sans-serif', fontWeight: 500, letterSpacing: '0.02em' },
+      overline: { fontFamily: '"Inter", sans-serif', fontWeight: 600, letterSpacing: '0.08em' },
     },
   }
 )

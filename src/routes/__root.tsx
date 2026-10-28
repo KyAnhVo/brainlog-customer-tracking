@@ -34,7 +34,6 @@ function NavBar() {
           variant="h6"
           component="div"
           sx={{
-            fontFamily: "'Lato', sans-serif",
             fontSize: "2vh"
           }}
         >
