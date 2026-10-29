@@ -7,11 +7,3 @@ export const Route = createFileRoute('/')({
 
   // component: () => <Index />,
 })
-
-function Index() {
-  return (
-    <>
-      <h1>Index.html</h1>
-    </>
-  )
-}

@@ -24,13 +24,10 @@ out/
 .cache/
 *.tsbuildinfo
 
-# Environment variables and local secrets
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-.envrc
+# Environment variables are only VITE_* so no problem exposing them.
+!.env.production
+!.env.development
+.env.*.local
 
 # Testing coverage
 coverage/

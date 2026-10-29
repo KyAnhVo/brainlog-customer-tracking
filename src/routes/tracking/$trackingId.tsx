@@ -10,6 +10,7 @@ import {
 } from '@mui/lab';
 import { createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query';
+import { api, isApiError, type ApiError } from '@/lib/api';
 
 export const Route = createFileRoute('/tracking/$trackingId')({
   component: RouteComponent,
@@ -50,24 +51,10 @@ interface Details {
 
   }
 }
-interface ApiError {
-  errorCode: number,
-  errorMsg: string,
-}
+async function fetchTracking(trackingId: string, signal: AbortSignal): Promise<{ statuses: Status[], details: Details }> {
+  const { data } = await api.get<{ statuses: Status[], details: Details }>(`/tracking/${trackingId}`, { signal });
 
-function isApiError(e: unknown): e is ApiError {
-  return typeof e === 'object' && e !== null && 'errorCode' in e && 'errorMsg' in e;
-}
-
-async function fetchTracking(trackingId: string): Promise<{ statuses: Status[], details: Details }> {
-  const res = await fetch(`/api/tracking/${trackingId}`);
-  const body = await res.json();
-
-  if (!res.ok) {
-    throw body as ApiError;
-  }
-
-  const { statuses, details } = body as { statuses: Status[], details: Details };
+  const { statuses, details } = data;
   return {
     statuses: statuses.map((status) => ({ ...status, time: new Date(status.time) })),
     details,
@@ -78,7 +65,7 @@ function RouteComponent() {
   const { trackingId } = Route.useParams();
   const { data, error } = useQuery({
     queryKey: ['tracking', trackingId],
-    queryFn: () => fetchTracking(trackingId),
+    queryFn: ({ signal }) => fetchTracking(encodeURIComponent(trackingId), signal),
     retry: false,
   });
 
@@ -86,7 +73,7 @@ function RouteComponent() {
   const details = data?.details ?? null;
   const err: ApiError | null = error == null ? null
     : isApiError(error) ? error
-    : { errorCode: 0, errorMsg: error instanceof Error ? error.message : 'Network error' };
+      : { errorCode: 0, errorMsg: error instanceof Error ? error.message : 'Network error' };
 
   return (
     <>
